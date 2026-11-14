@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud Trainings</title>
+<meta name="description" content="Short videos that help when moving from your own servers to the cloud.">
+<meta name="theme-color" content="#1c1b3a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cloud Trainings">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* layout: a journey of chapters; each video is a sticker-like card with a drawn mini-diagram as its preview. One bright theme by choice. */
+  color-scheme:light;
+  --paper:#eef3ff; --card:#ffffff; --ink:#1c1b3a; --muted:#5a5f7d; --line:#d7def2;
+  --sky:#3f8fe0; --coral:#ff6258; --grape:#8a63e0; --mint:#16b094; --sun:#f5a800; --navy:#2b3a8f;
+  --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card{transition:none}}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 var(--body)}
+main{max-width:980px;margin:0 auto;padding:22px 16px 70px}
+a{color:inherit}
+a:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:6px}
+
+.hero{background:var(--ink);color:#fff;border-radius:22px;padding:26px 22px 22px;position:relative;overflow:hidden}
+.hero h1{font:700 clamp(1.8rem,6.4vw,2.9rem)/1.08 var(--display);margin:0 0 12px;text-wrap:balance}
+.hero h1 span{color:var(--sun)}
+.hero p{margin:0 0 8px;max-width:60ch;color:#dfe3ff}
+.trip{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px;font:600 1rem var(--display)}
+.trip b{background:#fff;color:var(--ink);padding:6px 12px;border-radius:999px;font-weight:600}
+.trip i{font-style:normal;color:var(--sun)}
+
+.home{display:none;margin-top:14px;background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:0 14px}
+@media (pointer:coarse){.home{display:block}}
+.home summary{cursor:pointer;font:600 1rem var(--display);padding:12px 0;list-style-position:inside}
+.home .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 20px}
+.home h3{font:600 1rem var(--display);margin:6px 0 2px}
+.home ol{margin:0;padding-left:22px}
+.home li{margin:3px 0}
+.home p{color:var(--muted);font-size:.92rem;margin:10px 0 14px}
+.tools{flex-basis:100%;display:flex;gap:8px;flex-wrap:wrap}
+.tools button{font:600 .88rem var(--display);padding:6px 12px;border-radius:999px;border:2px solid var(--ink);background:var(--card);color:var(--ink);cursor:pointer}
+.tools button[aria-pressed="true"]{background:var(--ink);color:#fff}
+section,.card{scroll-margin-top:118px}
+.quiz{margin-top:16px;background:var(--card);border:2px dashed var(--c);border-radius:16px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;max-width:640px}
+.quiz .lbl{font:600 .78rem var(--display);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.qq{margin:0;font:600 1.1rem/1.3 var(--display);text-wrap:balance}
+.opts{display:grid;gap:8px}
+.opts button{text-align:left;font:inherit;padding:10px 13px;border:2px solid var(--ink);border-radius:12px;background:var(--paper);color:var(--ink);cursor:pointer}
+.opts button.right{background:var(--mint);border-color:var(--mint);color:#fff}
+.opts button.wrong{background:var(--coral);border-color:var(--coral);color:#fff}
+.opts button:disabled{cursor:default;color:inherit}
+.opts button.right:disabled,.opts button.wrong:disabled{color:#fff}
+.qend{margin:0;color:var(--muted)}
+.qnext{display:flex;align-items:center;gap:12px;width:100%}
+.qnext .go{border:0;cursor:pointer;flex:none}
+.tick{flex:1;height:6px;background:var(--line);border-radius:9px;overflow:hidden}
+.tick i{display:block;height:100%;background:var(--c);animation:tick 7s linear forwards}
+@keyframes tick{from{width:100%}to{width:0}}
+.paused .tick{visibility:hidden}
+.qa .go[data-again]{border:0;cursor:pointer}
+.search{margin:12px 0 2px}
+.search input{width:100%;font:inherit;padding:11px 16px;border:2px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink)}
+#nores{color:var(--muted);margin:10px 6px 0}
+.nomatch{display:none!important}
+.searching .quiz{display:none}
+.searching.hide-done .card.done:not(.nomatch),.searching.hide-done .card.skipped:not(.nomatch){display:flex!important}
+.searching #app section[hidden]:not(.nomatch){display:block}
+.qa{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.qa[hidden]{display:none}
+.qa p{margin:0}
+.gloss{margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.gloss div{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px 14px 12px}
+.gloss dt{font:600 1.06rem var(--display)}
+.gloss dd{margin:2px 0 0;font-size:.95rem}
+.gloss a{white-space:nowrap;font-weight:700;color:var(--navy);text-underline-offset:3px}
+.skip{display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--muted);cursor:pointer;padding-top:4px}
+.skip input{width:17px;height:17px;accent-color:var(--muted)}
+.card.skipped{opacity:.55;box-shadow:5px 5px 0 var(--line)}
+.hide-done .card.skipped{display:none!important}
+.hide-done .card.done{display:none}
+.hide-done .card.done.part{display:flex}
+.hide-done .card.main-seen .pv,.hide-done .card.main-seen .bd>p,.hide-done .card.main-seen .bd>.row{display:none}
+.hide-done .card.alt-seen .alt{display:none}
+.hide-done .card.main-seen .alt{margin-top:0}
+#top-btn{position:fixed;right:16px;bottom:18px;z-index:20;width:50px;height:50px;border-radius:50%;border:2px solid var(--ink);background:var(--sun);color:var(--ink);font:700 1.4rem var(--display);cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+#top-btn[hidden]{display:none}
+#player{position:fixed;inset:0;z-index:50;background:rgba(18,17,45,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px}
+#player[hidden]{display:none}
+.ptop{width:100%;max-width:640px;display:flex;justify-content:space-between;align-items:center;gap:12px;color:#fff;font:600 1.05rem/1.25 var(--display)}
+#pclose{flex:none;width:42px;height:42px;border-radius:50%;border:2px solid #fff;background:transparent;color:#fff;font-size:1.1rem;cursor:pointer}
+#pwrap{display:flex;justify-content:center;width:100%;min-height:0}
+#pwrap iframe{border:0;border-radius:14px;background:#000;max-width:100%}
+#pwrap iframe.fb{height:min(68vh,640px);aspect-ratio:9/16}
+#pwrap iframe.yt{width:min(100%,760px);aspect-ratio:16/9}
+.pbot{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.pbot .go{border:0;cursor:pointer;background:var(--mint);color:#fff}
+.pbot .go.two{background:transparent;color:#fff;border:2px solid #fff}
+.pbot [hidden]{display:none}
+#install{border:0;cursor:pointer;margin-top:14px;font-size:1.05rem;padding:12px 20px}
+#install[hidden]{display:none}
+@media (display-mode:standalone){.home,#install{display:none!important}}
+@media print{
+  body *{visibility:hidden}
+  #cert-canvas{visibility:visible;position:fixed;left:0;top:0;width:100%;border:0;box-shadow:none;border-radius:0}
+  @page{size:landscape;margin:8mm}
+}
+.progress{flex-wrap:wrap;position:sticky;top:0;z-index:5;margin:14px 0 6px;padding:10px 14px;background:var(--card);border:2px solid var(--ink);border-radius:14px;display:flex;gap:12px;align-items:center;font:600 .98rem var(--display)}
+.bar{flex:1;height:12px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar div{height:100%;width:0;background:var(--mint);border-radius:99px;transition:width .3s}
+#mins{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--mint)}
+#count{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+nav a{text-decoration:none;font:600 .93rem var(--display);padding:7px 13px;border-radius:999px;color:#fff;background:var(--c)}
+
+section{margin-top:34px;--c:var(--sky)}
+.ch{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.ch .n{flex:none;width:46px;height:46px;border-radius:14px;background:var(--c);color:#fff;font:700 1.4rem/46px var(--display);text-align:center}
+.ch h2{font:700 clamp(1.3rem,4.6vw,1.75rem)/1.15 var(--display);margin:0;text-wrap:balance}
+section>p{margin:0 0 14px;color:var(--muted);max-width:62ch}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:5px 5px 0 var(--c);transition:transform .15s}
+.card:hover{transform:translateY(-3px)}
+.card.done{box-shadow:5px 5px 0 var(--line);border-color:var(--muted)}
+.pv{background:var(--c);padding:16px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;min-height:92px;text-decoration:none}
+.pv b{background:#fff;color:var(--ink);border-radius:10px;padding:5px 9px;font:600 .88rem var(--display);white-space:nowrap}
+.pv i{font-style:normal;color:#fff;font-weight:700}
+.bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.bd h3{font:600 1.16rem/1.22 var(--display);margin:0;text-wrap:balance}
+.bd p{margin:0;font-size:.97rem}
+.why{color:var(--muted)}
+.why b{color:var(--ink)}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:auto;padding-top:6px}
+.go{background:var(--ink);color:#fff;text-decoration:none;font:600 1rem var(--display);padding:9px 16px;border-radius:999px}
+.chk{display:flex;gap:6px;align-items:center;font-size:.9rem;color:var(--muted);cursor:pointer}
+.alt{background:var(--paper);border:2px dashed var(--line);border-radius:14px;padding:11px 13px 12px;display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.alt .lbl{font:600 .78rem var(--display);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.alt p{font-weight:600}
+.alt .row{margin-top:2px;padding-top:2px}
+.go.two{background:var(--card);color:var(--ink);border:2px solid var(--ink);padding:7px 14px}
+.len{font-variant-numeric:tabular-nums;font-weight:500;opacity:.8;margin-left:4px}
+.chk input{width:20px;height:20px;accent-color:var(--mint)}
+
+.bonus{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.bonus li{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:12px 14px}
+.bonus a{font:600 1.05rem var(--display);text-underline-offset:3px}
+.bonus span{display:block;color:var(--muted);font-size:.93rem;margin-top:2px}
+.bonus em{font-style:normal;font-variant-numeric:tabular-nums;background:var(--paper);border-radius:6px;padding:1px 7px;margin-left:6px;font-size:.85rem;color:var(--ink)}
+.cert{display:flex;flex-direction:column;gap:10px}
+.cert label{font:600 .95rem var(--display)}
+.cert input{font:inherit;padding:10px 12px;border:2px solid var(--ink);border-radius:12px;background:var(--card);color:var(--ink);max-width:420px}
+.cert canvas{width:100%;height:auto;border-radius:14px;box-shadow:5px 5px 0 var(--navy);border:2px solid var(--ink);background:#fff}
+.cert button{border:0;cursor:pointer}
+.cert .row{justify-content:flex-start;flex-wrap:wrap}
+#cert-msg{font-size:.92rem;color:var(--muted)}
+footer{margin-top:40px;color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+<div class="hero">
+  <h1>From the server room to the cloud, <span>one tiny video at a time</span></h1>
+  <p>Moving from your own servers to the cloud means a lot of new things to get familiar with: containers, Pub/Sub, Redis, Kubernetes.</p>
+  <p>Here are some short videos to help with some of them. Simple drawings and a voice, a minute or three each. Grab a coffee, tap Watch, tick it off.</p>
+  <div class="trip"><b>🏢 Your servers</b><i>➜</i><b>📦 Containers</b><i>➜</i><b>📬 Messages</b><i>➜</i><b>☁️ Google Cloud</b></div>
+</div>
+
+<button id="install" type="button" class="go" hidden>📲 Install as an app</button>
+<details class="home" id="home-help">
+  <summary>📱 Put this page on my home screen</summary>
+  <div class="steps">
+    <div><h3>iPhone</h3><ol><li>Open this page in Safari.</li><li>Tap the Share button (the square with an arrow).</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol></div>
+    <div><h3>Android</h3><ol><li>Open this page in Chrome.</li><li>Tap the <b>⋮</b> menu at the top.</li><li>Choose <b>Add to Home screen</b>.</li><li>Tap <b>Add</b>.</li></ol></div>
+  </div>
+  <p>Opened it from WhatsApp? First choose "Open in browser" from the menu, then follow the steps. Once it is on your home screen it opens like an app, even without a connection (the videos still need one).</p>
+</details>
+<div class="progress"><span>🏁</span><div class="bar"><div id="fill"></div></div><span id="count">0 of 0 watched</span><span id="mins" title="Minutes you have watched"></span>
+  <div class="tools"><button id="next-btn" type="button">⏭ Next unwatched</button><button id="hide-btn" type="button" aria-pressed="false">🙈 Hide watched &amp; skipped</button></div>
+</div>
+<div class="search"><input id="search" type="search" placeholder="🔎 Search videos and words" aria-label="Search videos and words" autocomplete="off"><p id="nores" hidden>Nothing found. Try another word.</p></div>
+<nav id="nav" aria-label="Chapters"></nav>
+<div id="app"></div>
+
+<section id="diploma" style="--c:var(--navy)">
+  <div class="ch"><div class="n">🎓</div><h2>Your diploma</h2></div>
+  <p>Tick the videos you watched and your diploma fills in by itself. Watch them all to graduate with highest honours.</p>
+  <div class="cert">
+    <label for="cert-name">Your name on the diploma</label>
+    <input id="cert-name" type="text" maxlength="40" autocomplete="name" placeholder="Type your name">
+    <canvas id="cert-canvas" width="1600" height="1130" aria-label="Your diploma"></canvas>
+    <div class="row">
+      <button id="cert-save" type="button" class="go">⬇ Save as picture</button>
+      <button id="cert-print" type="button" class="go two">🖨 Print or save as PDF</button>
+      <span id="cert-msg" role="status"></span>
+    </div>
+  </div>
+</section>
+
+<button id="top-btn" type="button" aria-label="Back to top" hidden>↑</button>
+
+<div id="player" hidden role="dialog" aria-modal="true" aria-labelledby="ptitle">
+  <div class="ptop"><span id="ptitle"></span><button id="pclose" type="button" aria-label="Close video">✕</button></div>
+  <div id="pwrap"></div>
+  <div class="pbot">
+    <button id="pdone" type="button" class="go">✓ Watched, close</button>
+    <a id="popen" class="go two" target="_blank" rel="noreferrer" href="#">Open in its own app ↗</a>
+  </div>
+</div>
+
+<footer>The short videos are Facebook reels; the testing and bonus rounds are YouTube. Links checked 13 November 2026. A card with two videos counts as watched when you tick either one. The ticks and the name on the diploma are saved only on your own phone.</footer>
+</main>
+
+<script>
+const FB='https://www.facebook.com/reel/', YT='https://www.youtube.com/watch?v=';
+const chapters=[
+{c:'sky',t:'Warm-up: how the web really works',s:'Start here. Three videos that draw the map everything else sits on.',v:[
+ ['2115029862432375','You type a URL and hit Enter. Then what?',['🌐 URL','📖 DNS','🛣️ routers','🖥️ server','📄 page'],'The whole chain your browser sets off in a split second: finding the address, travelling the network, getting the page back.','Every request to your cloud system takes this exact trip.',['1824713551794190','netflix.com and the four questions your browser answers']],
+ ['29097881333174920','What really happens when you call an API',['📱 app','🔒 HTTPS','⚙️ server','🧾 JSON'],'DNS lookup, encryption, the server doing its work, and the answer coming back as JSON.','In-process method calls become network calls. This is what one costs.',['2332291070867502','how APIs work, with a flight app']],
+ ['4082651525362662','Monolith vs Microservices',['🧱 one big app','✂️','🧩 🧩 🧩 small services'],'How the two styles work, what each is good at, and why microservices are not always the answer.','The first decision of the whole move: how much to split, and when.',['1627286015401231','five architecture types, starting from one codebase']]
+]},
+{c:'coral',t:'Containers: ship it in a box',s:'Goodbye "it works on my server". Hello boxes that run the same everywhere.',v:[
+ ['1433400375666439','Docker vs Kubernetes',['📦 Docker packs','☸️ Kubernetes runs many'],'Docker puts an app in a container. Kubernetes keeps many containers running, scaled and healthy. The video that started this list.','The base idea behind Cloud Run and GKE.',['1372200198200685','Docker builds it, Kubernetes runs it']],
+ ['1060257943078505','A container is not a small virtual machine',['🖥️ VM: a whole computer','🆚','📦 container: one isolated process'],'"It works on my machine" stopped being an excuse. A container is just one isolated process, and that is why it starts fast and runs the same everywhere.','The mental switch from servers you look after to processes you throw away and restart.'],
+ ['2858296101209709','Kubernetes: Pods, Nodes, Deployments, Services',['🖥️ one server','😰 too many users','☸️ pods on many nodes'],'You rent one server and deploy your app on it. Then the users arrive. The four Kubernetes words you will hear every day, built up one at a time.','The vocabulary of GKE, before anyone opens a YAML file.'],
+ ['1683404826455793','What happens when you run a Docker container',['⌨️ docker run','🛠️ daemon','🧰 containerd','🏃 runc','📦 running!'],'The path from one command to a running container, and the Linux tricks that keep it isolated.','A container is a process, not a small virtual machine. This shows why.'],
+ ['1519367340221796','Linux vs Windows for developers',['🪟 Windows','🤝 WSL','🐧 Linux'],'What each system is best at, and how WSL gives you both on one PC.','Your containers will run Linux, even if your laptop stays on Windows.'],
+ ['1016740354785368','Terminal vs Shell: not the same thing',['🖥️ terminal','🐚 shell','🧠 kernel'],'How the window, the shell (Bash, Zsh, Fish) and the Linux kernel work together.','You will type a few Linux commands soon. Good to know who is listening.'],
+ ['1785599559405234','5 Linux commands that feel like superpowers',['Ctrl-R','sudo !!','grep -rn','watch','tmux'],'Find an old command, fix a permission error, search code, keep an eye on a server, and keep work running after you disconnect.','The first commands to learn when your servers stop having a desktop.',['1775503560351717','Linux from your first terminal to production debugging']],
+ ['1398986858981193','Why apps slow down and crash: memory leaks',['🧠 memory','📈 grows','💥 crash'],'How leaks happen even with garbage collection, and how developers find and fix them.','A container has a hard memory limit. A leak an old server survived for days gets a container killed.']
+]},
+{c:'grape',t:'Services that talk to each other',s:'Once the app is in pieces, the pieces need to chat. Politely.',v:[
+ ['1836294264071102','How Kafka handles millions of events',['🍔 order','📬 topic','🛵 consumers'],'Producers, topics, partitions, consumers and offsets, told with a food-delivery example.','Kafka is not Pub/Sub, but topics and subscribers work on the same ideas.'],
+ ['1017634524642942','Three ways a server finds out something happened',['💳 payment clears','❓ how do you know','1️⃣ 2️⃣ 3️⃣'],'A payment clears, a message arrives, a file finishes uploading. There are only three ways your server learns about it, and each has a real tradeoff.','The thinking behind choosing a Pub/Sub message, a callback or a plain call.'],
+ ['2283583199158018','Queues: one event, many listeners',['🧾 order.paid','📬 queue','📧 email','📊 analytics','💳 billing'],'A worker charges a card, then crashes before it records the order. Routing, job queues and event logs each handle that differently. Compares Kafka, SQS and RabbitMQ.','This is the heart of Pub/Sub: one message, many subscribers, and what happens on a crash.'],
+ ['4409420829368270','You clicked Pay once. Were you charged once?',['👆 Pay','🔁 retry','🛡️ duplicate protection','✅ charged once'],'The safe payment retry flow, from the first request through protection against duplicates.','Messages can arrive twice. Your handlers must be safe to run twice.'],
+ ['1417588163380145','REST API vs GraphQL',['🍽️ fixed menu','🆚','🥗 order exactly what you want'],'How each one fetches data, handles several requests, and when to pick which.','You will design many new APIs. Know the options first.',['1470318631811993','why REST makes three trips for one screen']],
+ ['4550959958472851','6 API types: REST is not always the answer',['🧼 SOAP','🌐 REST','➕ 4 more'],'Six ways for programs to talk, starting from strict SOAP, and the problem each one was made for.','You will pick a style per service. Good to see the whole menu first.'],
+ ['1441317237953917','4 load balancing algorithms',['👥 requests','⚖️ balancer','🖥️ 🖥️ 🖥️'],'How thousands of requests are shared out so no single server drowns.','Every cloud service of yours will sit behind one of these.',['1537852054325088','the 3 a.m. crash that load balancers exist to solve']]
+]},
+{c:'mint',t:'Data without drama',s:'Databases under pressure, Redis to the rescue, and two people who want the same seat.',v:[
+ ['4104473507267371','10,000 requests hit the database at once',['🌊 10,000 requests','🚰 connection pool','🗄️ database'],'How connection pooling lets a database take the pressure without falling over.','Many small instances mean many connections. Limits become a design point.'],
+ ['1431909345537489','Slow the first time, instant the next: caching',['📱 phone','🖥️ server','🗄️ database','⚡ cache'],'Follow one request from phone to server to database and see where a cache makes the second visit almost instant.','This is the everyday job you will give Redis.'],
+ ['1430850261720094','Database indexes: one row out of 100,000,000',['🔎 one email','📚 100,000,000 accounts','📑 index'],'A user resets her password and the app must find her among a hundred million accounts. Which columns to index, and when not to.','Indexes and keys behave differently in a distributed database. Start from the basics.'],
+ ['948527537912588','5 ways to scale a database',['🐢 slow database','🩺 symptom','💊 5 fixes'],'A growing marketplace hits one database limit after another. Five fixes, the symptom each one treats and what it costs.','Explains what a database like Spanner does for you, and what stays your job.'],
+ ['1119924920894778','500,000 likes in one minute',['❤️ ×500,000','⚡ Redis counter','📦 batch','🗄️ database'],'The hot-row problem: one database row everyone updates at once. Redis counters and batch writes fix it.','A real Redis job, and hot rows are a known Spanner problem too.',['930994449947465','the hot key problem as an interview question']],
+ ['2014805972517781','Two people book the same seat',['🙋 🙋‍♀️','💺 one seat','🔐 lock'],'Race conditions, database locking, Redis locks and optimistic locking stop the double booking.','With many copies of your code running, the in-process lock no longer protects you.',['1895499224957143','one concert ticket left, two people click Buy']],
+ ['1515046703790243','Bloom filter: is this username taken?',['🔤 username','🌸 quick check','🗄️ ask only if needed'],'A tiny memory structure that answers "definitely not there" without touching the database.','A nice trick to keep load off the database. Redis has it built in.'],
+ ['1106300268689389','SQL vs NoSQL',['📊 tables','🆚','📄 documents'],'The real differences, and when to use PostgreSQL, MySQL, MongoDB or Cassandra.','Spanner is SQL that scales like NoSQL. This explains why that is special.'],
+ ['996042909489057','Cookies vs Sessions',['🍪 cookie','🤝','🗂️ session'],'How a website remembers you after you sign in.','A session kept in server memory dies in containers. It moves to Redis or tokens.']
+]},
+{c:'sun',t:'Ship it and keep it alive',s:'From "copy the files to the server" to pipelines, and what to do at 3 a.m.',v:[
+ ['946690138131619','What is CI/CD and how a pipeline works',['👩‍💻 commit','🧪 test','🏗️ build','🚀 deploy'],'How code travels from a developer to production with no manual steps.','This replaces manual deployments.',['2726521751139165','how one small change is kept from breaking production']],
+ ['4465324340400840','Shipping at 7 p.m. on Friday and nobody notices',['⏹️ stop','📋 copy','▶️ start','😱 or do it live'],'Thousands of people are ordering pizza and you must release a new checkout button. The naive way is stop, copy, start. Then the better ways.','Old and new will run side by side for a long time. These are the release techniques for that.'],
+ ['1136167939084555','The production server just went down',['🚨 alert','🔎 logs','⏪ roll back','✅ back up'],'How teams notice an outage, find the cause, roll back and restore service.','The cloud habit: roll back first, investigate after.'],
+ ['1425905515673653','Google Cloud: one small app, service by service',['📝 small app','🗺️ service map','🚀 real deploy'],'A note-sharing app grows on Google Cloud, from the first request to a real deployment, adding one service at a time.','A cloud destination, drawn as one picture.'],
+ ['2146608376732411','A cloud architecture in simple English',['🌍 DNS','🖥️ compute','📬 queue','🗄️ database','🔑 IAM'],'How the main cloud building blocks fit together. It uses AWS names.','Every box has a Google twin: SQS is Pub/Sub, RDS is Cloud SQL or Spanner, Lambda is Cloud Run functions.']
+]},
+{c:'navy',t:'Locks and keys',s:'Who are you, what may you do, and why the little padlock matters.',v:[
+ ['971502888727528','Authentication vs Authorization',['🪪 who are you','🆚','🚪 what may you do'],'Two words that sound alike, and the security holes that appear when they get mixed up.','The base for cloud permissions and for services trusting each other.'],
+ ['1085952204330154','5 auth methods, each one fixing the last',['🗂️ session','🗝️ API key','🎟️ JWT','🤝 OAuth'],'Five ways to prove who is calling, told as one story where each method repairs a weakness of the one before.','You need to choose how users and services sign in. This is the map.'],
+ ['1079289688233446','What happens when you tap Sign in with Google',['👆 tap','↪️ redirect','✅ Google says yes','🎫 session'],'The whole login flow, from the redirect to the session, step by step.','The modern way to sign users in without keeping their passwords.'],
+ ['2198018694429677','Access token vs Refresh token',['🎟️ short ticket','🔄 refresh','🎫 new ticket'],'Why access tokens expire fast and how rotating refresh tokens limits the damage of a stolen one.','Tokens replace server-side login state in stateless services.',['4158036014328431','two tokens, two different problems']],
+ ['1961929814478802','Why HTTPS beats HTTP',['🤝 handshake','📜 certificate','🔒 encrypted'],'TLS encryption, digital certificates and the handshake that sets it all up.','In the cloud, certificates live on the load balancer, not on each server.'],
+ ['3056036528066001','Hashing vs Encryption',['🔐 two-way lock','🆚','🥩➜🍔 one-way'],'Encryption can be undone with a key. Hashing cannot, which is why passwords are hashed.','Useful if you move a user table with stored passwords.',['40461968946735939','how a website checks your password without knowing it']]
+]}
+];
+const bonus=[
+ ['jLI-84UjZLE','Cloud Pub/Sub in a minute','1:46','Topics and subscriptions. The replacement for old-style message queues.'],
+ ['5bjYk6Hhd10','Cloud Spanner in a minute','1:56','A relational database that scales across machines and regions.'],
+ ['bUSU1e9j8wc','What is Cloud Spanner?','6:18','How it keeps SQL and transactions while scaling out.'],
+ ['ra3Vow3-HHg','Memorystore in a minute','1:40','Google\'s managed Redis.'],
+ ['AL2rAmWFZjM','Cloud Run in a minute','1:33','Run a container with no servers or cluster to manage.'],
+ ['TlHvYWVUZyc','Kubernetes Explained in 6 Minutes','6:28','Pods, nodes, control plane, and when Kubernetes is too much.'],
+ ['DKUzfjjuPHI','What is Rancher Desktop?','5:44','Containers and Kubernetes on your own PC, free. The place to try everything above before it reaches the cloud.'],
+ ['UnBvNUbxPvA','Getting started with Rancher Desktop and Kubernetes','2:26','From install to a first running container in a couple of minutes.'],
+ ['FmLna7tHDRc','k3s vs k8s: what is the difference?','5:49','k3s is the small Kubernetes that Rancher Desktop runs for you. Same ideas, lighter engine.'],
+ ['nRVBNkcr4eM','What is Rancher?','1:53','The bigger sibling: one screen to manage many Kubernetes clusters.'],
+ ['XAccGbtl3Z8','Idempotency: what it is and how to implement it','8:05','Messages can arrive twice. Handlers must be safe to run twice.'],
+ ['5YLpjPmsPCA','What is the Transactional Outbox Pattern?','5:31','Save to the database and publish a message without losing either.'],
+ ['tomUWcQ0P3k','Terraform in 100 Seconds','2:18','Describe cloud resources in files instead of clicking.'],
+ ['BJiFd2KjRYs','The Strangler Pattern','5:45','Move piece by piece to the new system while the old one keeps working.'],
+ ['K83NPFfWPBw','Change Data Capture Explained for Beginners','9:54','Keep the new database in step with the old one while both are live.']
+];
+
+const testing=[
+ ['u6QfIXgjwGQ','Software Testing Explained in 100 Seconds','2:16','The whole idea of automated tests in two minutes. Start here.'],
+ ['YaXJeUkBe4Y','5 Types of Testing Every Developer Needs to Know','6:24','Unit, integration, end-to-end and friends: what each one catches and what it costs.'],
+ ['yunF2PgJlHU','Dependency Injection in a Nutshell','2:44','Hand a class what it needs instead of letting it build it. The short version.'],
+ ['J1f5b4vcxCQ','Dependency Injection, The Best Pattern','13:16','The longer, animated version: why DI makes code easy to change and easy to test.'],
+ ['4AxXWjBSIdY','Stubs vs Mocks vs Fakes in a nutshell','3:09','The stand-ins you pass in through DI so a unit test needs no real database or network.'],
+ ['SW3TqvhrzU4','Introduction to Playwright: What is Playwright?','0:30','Thirty seconds from the Playwright team on what the tool does.'],
+ ['4-LwodVujTg','Get started with end-to-end testing: Playwright','0:53','A first look at writing and running a UI test from the editor.'],
+ ['FdD_z-Bfbh8','Turn your browser actions into tests with Playwright CodeGen','2:14','Click through the app once and Playwright writes the test for you.'],
+ ['eP2V1fzW_Oo','Selenium vs Cypress vs Playwright at a glance','2:25','How the three UI testing tools differ.'],
+ ['UISF2qFkcK8','What is Page Object Model?','2:45','Keep screen details in one place so a UI change does not break fifty tests.'],
+ ['CwfohDaRpig','3 reasons for flaky Playwright tests, and how to fix them','10:42','Why a UI test passes today and fails tomorrow with no code change.'],
+ ['sNg0bnMF_qY','Testcontainers have forever changed the way I write tests','12:11','Integration tests against a real database that starts in a container and vanishes after.']
+];
+const LEN={"1016740354785368":65,"1017634524642942":113,"1060257943078505":180,"1079289688233446":133,"1085952204330154":124,"1106300268689389":182,"1119924920894778":77,"1136167939084555":113,"1372200198200685":121,"1398986858981193":121,"1417588163380145":126,"1425905515673653":144,"1430850261720094":147,"1431909345537489":141,"1433400375666439":110,"1441317237953917":107,"1470318631811993":135,"1515046703790243":140,"1519367340221796":92,"1537852054325088":134,"1627286015401231":155,"1683404826455793":142,"1775503560351717":147,"1785599559405234":105,"1824713551794190":131,"1836294264071102":139,"1895499224957143":141,"1961929814478802":111,"2014805972517781":114,"2115029862432375":130,"2146608376732411":157,"2198018694429677":80,"2283583199158018":102,"2332291070867502":144,"2726521751139165":144,"2858296101209709":135,"29097881333174920":102,"3056036528066001":139,"40461968946735939":139,"4082651525362662":150,"4104473507267371":147,"4158036014328431":60,"4409420829368270":143,"4465324340400840":137,"4550959958472851":149,"930994449947465":61,"946690138131619":52,"948527537912588":174,"971502888727528":121,"996042909489057":149};
+const mmss=id=>{const s=LEN[id];return s?`<span class="len">${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}</span>`:''};
+const EMBED=true; // true on the stand-alone site: videos play inside the page
+const quiz={"1":[{"q":"You type a web address and press Enter. What has to happen first?","o":["DNS finds the address of the server","The server sends back the page","The page gets encrypted"],"w":"Before anything else, DNS turns the name into an address the network can reach.","v":"2115029862432375"},{"q":"What does an API call usually send back to the app?","o":["Data, most often as JSON","A screenshot of the server","A fresh copy of the app"],"w":"The server answers with data the app can read, and JSON is the usual format.","v":"29097881333174920"},{"q":"A monolith is...","o":["One big app, released as a single piece","A very old server in the basement","A kind of database"],"w":"Everything lives in one codebase and ships together. Simple to start with, harder as it grows.","v":"4082651525362662"},{"q":"Microservices are always the better choice. True?","o":["False: they fix some problems and add new ones","True, always","Only on Fridays"],"w":"Small services are easier to change one at a time, but there are many more moving parts to run.","v":"4082651525362662"},{"q":"The browser has received the page. What does it do last?","o":["Draws it on the screen","Sends it back to the server","Deletes it"],"w":"Turning code into the picture you see is called rendering, and it is the final step of the trip.","v":"2115029862432375"},{"q":"An API is best described as...","o":["A menu of things one program can ask another to do","A kind of database","A programming language"],"w":"You pick from the menu, the other program does the work and hands back the result.","v":"29097881333174920"},{"q":"An app calls another service over the network instead of a function inside itself. What is new?","o":["The call can be slow or fail, so the app must be ready for that","Nothing changes","It always gets faster"],"w":"Networks drop and stall. Code that crosses one needs timeouts and a plan for when there is no answer.","v":"29097881333174920"},{"q":"A team changes one small feature in a monolith. They usually have to...","o":["Release the whole app again","Release only that feature","Buy a new server"],"w":"One piece means one release. That is fine for a small app and slow for a big one.","v":"4082651525362662"},{"q":"How do microservices talk to each other?","o":["Over the network, with APIs or messages","By sharing one big memory","They never talk"],"w":"Each service runs on its own, so every conversation crosses the network.","v":"4082651525362662"}],"2":[{"q":"What is a container, really?","o":["One isolated process, packed with what it needs","A small virtual machine with its own operating system","A zip file of your code"],"w":"It is just a process kept apart from the others. That is why it starts in a moment and runs the same everywhere.","v":"1060257943078505"},{"q":"Docker and Kubernetes: who does what?","o":["Docker packs and runs a container, Kubernetes looks after many of them","They are two names for the same tool","Kubernetes packs, Docker scales"],"w":"They are a team: one makes the box, the other keeps a whole fleet of boxes running.","v":"1433400375666439"},{"q":"What is the smallest thing Kubernetes runs?","o":["A pod","A node","A cluster"],"w":"A pod holds one or more containers. Pods live on nodes, and the nodes together are the cluster.","v":"2858296101209709"},{"q":"The terminal and the shell are the same thing. True?","o":["False: the terminal is the window, the shell reads your commands","True","Only on Windows"],"w":"The terminal just shows text. The shell (Bash, Zsh, Fish) is the program that understands what you typed.","v":"1016740354785368"},{"q":"An app uses more and more memory until it crashes. What is that called?","o":["A memory leak","A cache","A cold start"],"w":"Memory that is never given back piles up. In a container with a fixed limit, that ends quickly.","v":"1398986858981193"},{"q":"What is a Docker image?","o":["The packed template a container is started from","A screenshot of the app","A container that is running"],"w":"The image is the recipe and ingredients. A container is the dish, made from it as many times as you like.","v":"1683404826455793"},{"q":"\"It works on my machine\" goes away with containers because...","o":["The app travels with everything it needs","Everyone gets the same laptop","Bugs are removed automatically"],"w":"The same box runs on a laptop, a test server and the cloud.","v":"1060257943078505"},{"q":"A container crashes at 3 a.m. What does Kubernetes do?","o":["Starts a new one in its place","Sends an email and waits","Shuts the whole cluster down"],"w":"You tell it how many copies you want, and it keeps that number alive.","v":"2858296101209709"},{"q":"More users arrive than one copy of the app can serve. Kubernetes can...","o":["Run more copies of it","Make the processor faster","Ask the users to come back later"],"w":"Scaling out means more copies side by side, with requests shared between them.","v":"1433400375666439"},{"q":"WSL lets you...","o":["Run Linux inside Windows","Run Windows inside Linux","Run both without a computer"],"w":"You keep your Windows desktop and still get a real Linux command line.","v":"1519367340221796"},{"q":"Which keys search through commands you typed before?","o":["Ctrl-R","Ctrl-Z","Alt-F4"],"w":"Press Ctrl-R, type a few letters, and the shell finds the old command for you.","v":"1785599559405234"},{"q":"What does \"sudo !!\" do?","o":["Runs your last command again, this time as administrator","Deletes your last command","Shouts at the computer"],"w":"\"!!\" means \"the last command\". Handy right after a \"permission denied\".","v":"1785599559405234"},{"q":"With garbage collection, memory leaks cannot happen. True?","o":["False: memory that is still referenced is never freed","True","Only in Java"],"w":"The collector only frees what nothing points to. A forgotten list that keeps growing stays forever.","v":"1398986858981193"}],"3":[{"q":"A \"pay\" message is delivered twice by mistake. What keeps the customer from paying twice?","o":["A handler that is safe to run twice","A faster server","Sending fewer messages"],"w":"Messages can arrive twice, so the code must give the same result the second time. The word for that is idempotent.","v":"4409420829368270"},{"q":"What does a load balancer do?","o":["Shares incoming requests between servers","Stores passwords","Makes one server faster"],"w":"It stands in front and hands each request to a server that can take it.","v":"1441317237953917"},{"q":"A message arrives while every worker is busy. What happens to it in a queue?","o":["It waits until a worker picks it up","It is thrown away","It is sent back to the user"],"w":"That is the whole point of a queue: nothing is lost just because nobody was free right then.","v":"2283583199158018"},{"q":"Which one lets an app ask for exactly the fields it wants, in one request?","o":["GraphQL","REST","FTP"],"w":"With REST you often call several addresses. With GraphQL you describe what you want and get just that.","v":"1417588163380145"},{"q":"In Kafka, messages are published to a...","o":["topic","folder","table"],"w":"Producers write to a topic, and consumers read from it at their own pace.","v":"1836294264071102"},{"q":"Asking another server \"anything new?\" every few seconds is called...","o":["Polling","Hashing","Caching"],"w":"Simple to build, but most of the questions get the answer \"no\".","v":"1017634524642942"},{"q":"A webhook is...","o":["The other system calling you when something happens","A tool for catching fish","A kind of password"],"w":"Instead of you asking again and again, they knock on your door once.","v":"1017634524642942"},{"q":"One \"order paid\" event must reach email, billing and analytics. The clean way is to...","o":["Publish it once and let each of them subscribe","Call each one in turn and hope","Write it in a shared spreadsheet"],"w":"The sender does not need to know who is listening. New listeners can join later.","v":"2283583199158018"},{"q":"A worker crashes halfway through a message. In a queue, the message...","o":["comes back to be tried again","is gone for good","is marked as done"],"w":"A message leaves the queue only when a worker confirms it finished.","v":"2283583199158018"},{"q":"\"Round robin\" load balancing means...","o":["Each server gets the next request in turn","The fastest server gets everything","Requests go round in circles forever"],"w":"One for you, one for you, one for you, and back to the start.","v":"1441317237953917"},{"q":"Which of these API styles is the oldest and strictest?","o":["SOAP","GraphQL","gRPC"],"w":"SOAP came first, with heavy XML rules. The others arrived later to fix different pains.","v":"4550959958472851"},{"q":"In Kafka, what lets a consumer carry on from where it stopped?","o":["Its offset","Its password","Its IP address"],"w":"The offset is a bookmark in the topic: \"I have read up to here\".","v":"1836294264071102"}],"4":[{"q":"Why does an app often feel slow the first time and quick the second?","o":["The answer was kept in a cache","The database learned the question","The network warmed up"],"w":"The first request does the slow work. The answer is then kept close by for the next one.","v":"1431909345537489"},{"q":"Two people click Buy on the last seat at the same moment. What is this problem called?","o":["A race condition","A memory leak","A cold start"],"w":"Both requests read \"one seat left\" before either one writes. Locks and atomic updates stop it.","v":"2014805972517781"},{"q":"What does a database index do?","o":["Lets the database find rows without reading them all","Makes a backup","Encrypts the table"],"w":"Like the index of a book: look up the word, jump to the page.","v":"1430850261720094"},{"q":"Why keep a pool of database connections open?","o":["Opening a new one for every request is slow","To make the database bigger","To hide the passwords"],"w":"Requests borrow a connection that is already open and hand it back when done.","v":"4104473507267371"},{"q":"A Bloom filter can tell you for sure that something is...","o":["not in the set","in the set","the biggest in the set"],"w":"It answers \"definitely not there\" or \"maybe there\". Never a sure yes, and that is fine.","v":"1515046703790243"},{"q":"500,000 people like one video in a minute. Why does the database struggle?","o":["Everyone is updating the same single row","The video is too long","Likes are too big to store"],"w":"One row, half a million writers. They all have to wait in line for it.","v":"1119924920894778"},{"q":"A common fix for a red-hot counter is to...","o":["Count in Redis and write to the database in batches","Switch off likes","Add more columns"],"w":"Redis counts in memory very fast. The database gets one tidy update every so often.","v":"1119924920894778"},{"q":"SQL databases store data mainly as...","o":["Tables with rows and columns","Loose documents","Pictures"],"w":"Tables that link to each other, with one language to ask questions across them.","v":"1106300268689389"},{"q":"Which is the fair summary of SQL versus NoSQL?","o":["Neither is always better; it depends on the data and the questions","NoSQL is newer, so it is better","SQL is older, so it is better"],"w":"\"It is newer\" is not a reason. The shape of your data and how you read it decide.","v":"1106300268689389"},{"q":"A cookie lives...","o":["in your browser","only on the server","inside the database index"],"w":"The browser keeps it and sends it along with every request to that site.","v":"996042909489057"},{"q":"Your app runs as five copies. Why are sessions kept in one copy's memory a problem?","o":["The next request may land on a different copy","Memory is too expensive","Sessions are against the rules"],"w":"The other four copies have never heard of you. Shared storage like Redis fixes that.","v":"996042909489057"},{"q":"Optimistic locking means...","o":["Let everyone try, and reject a save if the data changed meanwhile","Lock the table and hope for the best","Never check anything"],"w":"No waiting in line. The second person to save is told \"someone was faster, try again\".","v":"2014805972517781"},{"q":"Why not put an index on every column?","o":["Every write gets slower and storage grows","Indexes are not allowed","Reads get slower"],"w":"Each index must be updated on every change. Index what you search by, not everything.","v":"1430850261720094"},{"q":"A read replica helps most when...","o":["Most of the load is reading","Most of the load is writing","The disk is full"],"w":"Copies of the database answer the read questions, and the main one keeps the writes.","v":"948527537912588"},{"q":"A cache keeps giving the old value after the real data changed. That is called...","o":["Stale data","A race condition","A cold start"],"w":"Every cache needs a rule for when its copy is too old to trust.","v":"1431909345537489"}],"5":[{"q":"Production breaks right after a release. What comes first?","o":["Go back to the last version that worked","Find the bug and fix it live","Restart every server"],"w":"Get people working again first, and a rollback is usually the quickest way. The hunt for the cause comes after.","v":"1136167939084555"},{"q":"What does CI/CD automate?","o":["Building, testing and releasing each change","Writing the code","The coffee machine"],"w":"Every change goes through the same steps without anyone copying files by hand.","v":"946690138131619"},{"q":"The simple way to release is stop, copy, start. What is wrong with it?","o":["Users are cut off while it happens","It is too fast","It needs Kubernetes"],"w":"While the app is stopped nobody can use it. The better ways swap versions with no gap.","v":"4465324340400840"},{"q":"DNS, compute, queue, database. These building blocks exist...","o":["on every big cloud, under different names","only on AWS","only on your own servers"],"w":"Learn the blocks once and you can read any cloud diagram.","v":"2146608376732411"},{"q":"In a pipeline, what happens when a test fails?","o":["The release stops","The release goes out anyway","The test gets deleted"],"w":"That is the safety net: a broken change never reaches users.","v":"946690138131619"},{"q":"The \"CI\" in CI/CD stands for...","o":["Continuous Integration","Cloud Infrastructure","Code Inspection"],"w":"Everyone's changes are merged and tested together many times a day.","v":"946690138131619"},{"q":"A blue-green release means...","o":["Two copies of production, and traffic switches from old to new","Painting the servers","Releasing only on weekdays"],"w":"The old version stays ready, so going back is just switching the traffic again.","v":"4465324340400840"},{"q":"A canary release sends the new version to...","o":["A small share of users first","Everyone at once","Nobody"],"w":"If the few have trouble you stop, and most people never noticed.","v":"4465324340400840"},{"q":"How do teams usually find out that production is down?","o":["Monitoring raises an alert","They read it in the newspaper","They wait for the yearly review"],"w":"Good monitoring tells the team before the customers do.","v":"1136167939084555"},{"q":"The service is back up. What does a good team do next?","o":["Look for the cause, so it does not happen again","Forget about it","Blame the newest person"],"w":"Fix the cause, not the person. Then the same outage will not come back.","v":"1136167939084555"}],"6":[{"q":"Authentication answers one question. Which one?","o":["Who are you?","What are you allowed to do?","Is the connection encrypted?"],"w":"Authentication is who you are. What you may do is authorization, a separate check.","v":"971502888727528"},{"q":"Why does an access token expire so quickly?","o":["So a stolen one is only useful for a short time","To annoy users","Because servers are forgetful"],"w":"A short life limits the damage. The refresh token quietly gets you a new one.","v":"2198018694429677"},{"q":"How should a website store your password?","o":["Hashed, so nobody can read it back","As plain text","Encrypted, so staff can read it if needed"],"w":"A hash is one-way. The site can check your password without ever keeping it.","v":"3056036528066001"},{"q":"What does HTTPS add to HTTP?","o":["Encryption between the browser and the server","Faster pictures","A longer address"],"w":"Anyone listening on the way sees only scrambled data.","v":"1961929814478802"},{"q":"With \"Sign in with Google\", the site you are signing in to...","o":["never sees your password","gets your Google password","opens a new Google account for you"],"w":"Google confirms who you are and hands the site a pass. Your password stays with Google.","v":"1079289688233446"},{"q":"You are signed in, but a page says \"you may not open this\". Which check said no?","o":["Authorization","Authentication","Encryption"],"w":"The site knows who you are. It has decided this is not yours to see.","v":"971502888727528"},{"q":"What is the refresh token for?","o":["Getting a new access token without signing in again","Reloading the page","Changing your password"],"w":"It works quietly in the background, so you stay signed in for weeks.","v":"2198018694429677"},{"q":"The padlock in the address bar means...","o":["The connection is encrypted and the site showed a valid certificate","The site is honest","The site has no bugs"],"w":"It protects the road, not the destination. A scam site can have a padlock too.","v":"1961929814478802"},{"q":"Encryption differs from hashing because encryption...","o":["can be undone with the right key","can never be undone","makes the data smaller"],"w":"Encrypt what you need to read again. Hash what you only need to check.","v":"3056036528066001"},{"q":"An API key is best treated like...","o":["A password: keep it out of the code and out of chat","A username: fine to share","A logo"],"w":"Anyone who has the key can act as you.","v":"1085952204330154"},{"q":"Why is sending the username and password with every request a weak method?","o":["The secret travels again and again, with more chances to be stolen","It is too slow to type","Passwords are too short"],"w":"Later methods send a short-lived pass instead, and keep the real secret at home.","v":"1085952204330154"},{"q":"Why add \"salt\" before hashing a password?","o":["So two people with the same password get different hashes","To make it tastier","To make it shorter"],"w":"Without salt, one cracked hash opens every account that used the same password.","v":"3056036528066001"}]};
+const glossary=[["API","The way one program asks another for something.","fb","29097881333174920"],["Authentication","Proving who you are. Authorization is the next step: what you may do.","fb","971502888727528"],["Cache","A fast copy of an answer, kept so the slow work is not repeated.","fb","1431909345537489"],["CI/CD","Every change is built, tested and released automatically.","fb","946690138131619"],["Cloud Run","A Google service that runs your container with no servers to look after.","yt","AL2rAmWFZjM"],["Connection pool","A set of open database connections that requests take turns using.","fb","4104473507267371"],["Container","One isolated process, packed with everything it needs to run.","fb","1060257943078505"],["Dependency injection","Handing a class what it needs instead of letting it build it.","yt","yunF2PgJlHU"],["Docker","The tool that packs an app into a container and runs it.","fb","1433400375666439"],["Hashing","One-way scrambling. It is how passwords are stored without being kept.","fb","3056036528066001"],["HTTPS / TLS","Encryption between the browser and the server.","fb","1961929814478802"],["Idempotent","Safe to run twice: the second time changes nothing.","fb","4409420829368270"],["Index","A lookup list that lets a database find a row without reading them all.","fb","1430850261720094"],["Kubernetes","Keeps many containers running, across many machines.","fb","2858296101209709"],["Load balancer","Shares incoming requests between servers.","fb","1441317237953917"],["Message queue","A place where messages wait until a worker picks them up.","fb","2283583199158018"],["Microservice","A small service that does one job and is released on its own.","fb","4082651525362662"],["Playwright","A robot that clicks through your screens to test them.","yt","SW3TqvhrzU4"],["Pub/Sub","One side publishes a message, every subscriber gets a copy.","yt","jLI-84UjZLE"],["Rancher Desktop","Containers and Kubernetes on your own PC.","yt","DKUzfjjuPHI"],["Redis","A very fast in-memory store, used for caches, counters and locks.","fb","1119924920894778"],["Rollback","Going back to the last version that worked.","fb","1136167939084555"],["Spanner","Google's SQL database that spreads over many machines and regions.","yt","5bjYk6Hhd10"],["Terraform","Cloud resources described in files instead of clicked by hand.","yt","tomUWcQ0P3k"],["Token","A signed pass the app shows with every request instead of a password.","fb","2198018694429677"],["Unit test","A small automatic check of one piece of code.","yt","u6QfIXgjwGQ"]];
+const TITLE={};chapters.forEach(ch=>ch.v.forEach(v=>{TITLE[v[0]]=v[1]}));
+let store={};
+try{store=JSON.parse(localStorage.getItem('watched')||'{}')}catch(e){}
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+let html='',nav='',total=0;
+chapters.forEach((ch,i)=>{
+  nav+=`<a href="#ch${i+1}" style="--c:var(--${ch.c})">${i+1}. ${esc(ch.t.split(':')[0])}</a>`;
+  html+=`<section id="ch${i+1}" style="--c:var(--${ch.c})"><div class="ch"><div class="n">${i+1}</div><h2>${esc(ch.t)}</h2></div><p>${esc(ch.s)}</p><div class="grid">`;
+  ch.v.forEach(([id,title,steps,what,why,alt])=>{
+    total++;
+    const pv=steps.map(s=>/^(➜|🆚|✂️|🤝)$/.test(s)?`<i>${s}</i>`:`<b>${s}</b>`).join('<i>›</i>').replace(/<i>›<\/i>(<i>[^›]*?<\/i>)<i>›<\/i>/g,'$1');
+    html+=`<article class="card${(store[id]||(alt&&store[alt[0]]))?' done':''}${store['skip-'+id]?' skipped':''}" data-id="${id}"><a class="pv" href="${FB+id}" aria-label="Watch: ${esc(title)}">${pv}</a><div class="bd"><h3>${esc(title)}</h3><p>${esc(what)}</p><p class="why"><b>For your move:</b> ${esc(why)}</p><div class="row"><a class="go" href="${FB+id}">▶ Watch ${mmss(id)}</a><label class="chk" for="w-${id}"><input type="checkbox" id="w-${id}"${store[id]?' checked':''}> Watched</label></div>${alt?`<div class="alt"><span class="lbl">↻ Another take on this</span><p>${esc(alt[1].charAt(0).toUpperCase()+alt[1].slice(1))}</p><div class="row"><a class="go two" href="${FB+alt[0]}">▶ Watch ${mmss(alt[0])}</a><label class="chk" for="w-${alt[0]}"><input type="checkbox" id="w-${alt[0]}"${store[alt[0]]?' checked':''}> Watched</label></div></div>`:''}<label class="skip" for="s-${id}"><input type="checkbox" id="s-${id}"${store['skip-'+id]?' checked':''}> Not for me, hide it</label></div></article>`;
+  });
+  html+='</div>'+(quiz[i+1]?`<div class="quiz" data-q="${i+1}"></div>`:'')+'</section>';
+});
+nav+=`<a href="#words" style="--c:var(--grape)">📖 Words</a>`;
+html+=`<section id="words" style="--c:var(--grape)"><div class="ch"><div class="n">📖</div><h2>The new words, one line each</h2></div><p>Heard a word in a meeting and nodded anyway? Find it here, then watch the video that explains it.</p><dl class="gloss">`+
+  glossary.map(([t,d,k,id])=>`<div><dt>${esc(t)}</dt><dd>${esc(d)} <a href="${(k==='fb'?FB:YT)+id}" data-title="${esc(t)}">▶ video</a></dd></div>`).join('')+'</dl></section>';
+nav+=`<a href="#testing" style="--c:var(--coral)">✔ Testing</a>`;
+html+=`<section id="testing" style="--c:var(--coral)"><div class="ch"><div class="n">✔</div><h2>Testing round: unit tests, DI and Playwright</h2></div><p>With dependency injection every part can be tested alone, and with Playwright a robot clicks through the screens for you. For developers and QA alike. These are on YouTube.</p><ul class="bonus">`+
+  testing.map(([id,t,len,d])=>`<li><a href="${YT+id}">${esc(t)}</a><em>${len}</em><span>${esc(d)}</span></li>`).join('')+'</ul></section>';
+nav+=`<a href="#diploma" style="--c:var(--navy)">🎓 Diploma</a>`;
+nav+=`<a href="#bonus" style="--c:var(--ink)">★ Bonus round</a>`;
+html+=`<section id="bonus" style="--c:var(--ink)"><div class="ch"><div class="n">★</div><h2>Bonus round: Google Cloud, Rancher and moving day</h2></div><p>The short videos above do not cover the Google Cloud services, Rancher for running containers on your own PC, or how to run old and new side by side. These YouTube videos do.</p><ul class="bonus">`+
+  bonus.map(([id,t,len,d])=>`<li><a href="${YT+id}">${esc(t)}</a><em>${len}</em><span>${esc(d)}</span></li>`).join('')+'</ul></section>';
+document.getElementById('nav').innerHTML=nav;
+document.getElementById('app').innerHTML=html;
+// ----- fun quiz: one question at a time, moves on by itself -----
+const quizState={};
+const YAY=['Nailed it! 🎯','Yes! 🙌','Exactly right ✨','You got it 🚀','Boom 💥'];
+const OOPS=['So close! 😅','Not this time 🙃','Good guess, though 🤏','Tricky one 🤔'];
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+function quizShow(box){
+  const n=box.dataset.q;
+  let S=quizState[n];
+  if(!S){
+    const pool=shuffle(quiz[n]),rounds=Math.ceil(pool.length/5),size=Math.ceil(pool.length/rounds);
+    S=quizState[n]={pool,rounds,size,r:0,i:0,score:0};
+  }
+  S.order=S.pool.slice(S.r*S.size,(S.r+1)*S.size);
+  clearTimeout(S.t);S.done=false;box.classList.remove('paused');
+  const tot=S.order.length,head='🎲 Quick quiz · just for fun'+(S.rounds>1?' · round '+(S.r+1)+' of '+S.rounds:'');
+  if(S.i>=tot){
+    const msg=S.score===tot?'A perfect round! 🏆':S.score>=tot/2?'Nice going! 🎉':'You know more now than five minutes ago 😉';
+    const last=S.r+1>=S.rounds;
+    box.innerHTML='<span class="lbl">'+head+'</span><p class="qq">'+S.score+' of '+tot+' right. '+msg+'</p>'+
+      (last?'<p class="qend">That was every question in this chapter. 🎓</p>':'')+
+      '<div class="qa"><button type="button" class="go" data-again>'+(last?'🔁 Start over':'▶ Another round, new questions')+'</button></div>';
+    return;
+  }
+  const Q=S.order[S.i];
+  S.opts=shuffle(Q.o.map((t,k)=>({t,ok:k===0})));
+  box.innerHTML='<span class="lbl">'+head+' · '+(S.i+1)+' of '+tot+'</span><p class="qq">'+esc(Q.q)+'</p><div class="opts">'+
+    S.opts.map((o,k)=>'<button type="button" data-k="'+k+'">'+esc(o.t)+'</button>').join('')+'</div><div class="qa" hidden></div>';
+}
+function quizAnswer(box,k){
+  const S=quizState[box.dataset.q],Q=S.order[S.i];
+  if(S.done)return;S.done=true;
+  const right=S.opts[k].ok;if(right)S.score++;
+  box.querySelectorAll('.opts button').forEach((b,i)=>{b.disabled=true;b.classList.toggle('right',S.opts[i].ok);b.classList.toggle('wrong',i===k&&!right);});
+  const qa=box.querySelector('.qa');
+  qa.innerHTML='<p><b>'+(right?pick(YAY):pick(OOPS))+'</b> '+esc(Q.w)+'</p>'+
+    '<a class="go two" href="'+FB+Q.v+'" data-title="'+esc(TITLE[Q.v])+'">▶ The full story: '+esc(TITLE[Q.v])+' '+mmss(Q.v)+'</a>'+
+    '<div class="qnext"><button type="button" class="go" data-next>Next ▸</button><span class="tick"><i></i></span></div>';
+  qa.hidden=false;
+  S.t=setTimeout(()=>quizNext(box),7000);
+}
+function quizNext(box){const S=quizState[box.dataset.q];clearTimeout(S.t);S.i++;quizShow(box);}
+document.querySelectorAll('.quiz').forEach(quizShow);
+document.getElementById('app').addEventListener('click',e=>{
+  const box=e.target.closest&&e.target.closest('.quiz');
+  if(!box)return;
+  if(e.target.closest('a')){clearTimeout(quizState[box.dataset.q].t);box.classList.add('paused');return;} // watching the video: wait for them
+  const b=e.target.closest('button');
+  if(!b)return;
+  if(b.dataset.k!==undefined)quizAnswer(box,+b.dataset.k);
+  else if('next' in b.dataset)quizNext(box);
+  else if('again' in b.dataset){const S=quizState[box.dataset.q];if(S.r+1<S.rounds){S.r++;S.i=0;S.score=0;}else delete quizState[box.dataset.q];quizShow(box);}
+});
+
+// ----- search -----
+const sBox=document.getElementById('search');
+function runSearch(){
+  const q=sBox.value.trim().toLowerCase(),on=q.length>1;
+  document.body.classList.toggle('searching',on);
+  let hits=0;
+  document.querySelectorAll('.card,.gloss>div,.bonus li').forEach(el=>{
+    const m=!on||el.textContent.toLowerCase().includes(q);
+    el.classList.toggle('nomatch',!m);if(m)hits++;
+  });
+  document.querySelectorAll('#app section').forEach(s=>{
+    s.classList.toggle('nomatch',on&&!s.querySelector('.card:not(.nomatch),.gloss>div:not(.nomatch),.bonus li:not(.nomatch)'));
+  });
+  document.getElementById('nores').hidden=!on||hits>0;
+}
+sBox.addEventListener('input',runSearch);
+
+let watchedCount=0,watchedMin=0;
+const nameBox=document.getElementById('cert-name');
+try{nameBox.value=localStorage.getItem('certName')||''}catch(e){}
+function honour(n){
+  if(n>=total)return['Graduated with Highest Honours','#f5a800'];
+  if(n>=Math.ceil(total*.75))return['Graduated with Honours','#16b094'];
+  if(n>=Math.ceil(total*.5))return['Halfway Hero','#3f8fe0'];
+  if(n>=1)return['Cloud Explorer in Training','#8a63e0'];
+  return['Ready for Take-off','#5a5f7d'];
+}
+function drawCert(){
+  const cv=document.getElementById('cert-canvas');
+  if(!cv.getContext)return;
+  const c=cv.getContext('2d'),W=cv.width,H=cv.height,ink='#1c1b3a';
+  const [title,col]=honour(watchedCount);
+  c.fillStyle='#ffffff';c.fillRect(0,0,W,H);
+  // confetti dots, fixed positions so the picture is stable
+  const cols=['#3f8fe0','#ff6258','#8a63e0','#16b094','#f5a800'];
+  for(let i=0;i<70;i++){const x=(i*397)%W,y=(i*211+((i*i*37)%300))%H;
+    if(x>170&&x<W-170&&y>150&&y<H-150)continue;
+    c.fillStyle=cols[i%5];c.beginPath();c.arc(x,y,8+(i%4)*4,0,7);c.fill();}
+  c.lineWidth=14;c.strokeStyle=ink;c.strokeRect(60,60,W-120,H-120);
+  c.lineWidth=4;c.strokeStyle=col;c.strokeRect(86,86,W-172,H-172);
+  c.textAlign='center';c.fillStyle=ink;
+  c.font='600 40px Fredoka, "Trebuchet MS", sans-serif';
+  c.fillText('D I P L O M A   O F   C L O U D   R E A D I N E S S',W/2,210);
+  c.font='400 38px "Nunito Sans", "Segoe UI", sans-serif';c.fillStyle='#5a5f7d';
+  c.fillText('This is to certify that',W/2,310);
+  const name=(nameBox.value||'').trim()||'Your name here';
+  let size=120;c.font='700 '+size+'px Fredoka, "Trebuchet MS", sans-serif';
+  while(c.measureText(name).width>W-320&&size>50){size-=6;c.font='700 '+size+'px Fredoka, "Trebuchet MS", sans-serif';}
+  c.fillStyle=nameBox.value.trim()?ink:'#c3c8dc';c.fillText(name,W/2,450);
+  c.strokeStyle=ink;c.lineWidth=3;c.beginPath();c.moveTo(380,486);c.lineTo(W-380,486);c.stroke();
+  c.font='400 40px "Nunito Sans", "Segoe UI", sans-serif';c.fillStyle=ink;
+  c.fillText('has watched '+watchedCount+' of '+total+' tiny videos'+(watchedMin?' ('+watchedMin+' minutes of learning)':''),W/2,570);
+  c.fillText('on the way from the server room to the cloud',W/2,626);
+  // honour ribbon
+  c.font='700 74px Fredoka, "Trebuchet MS", sans-serif';
+  const tw=c.measureText(title).width+120;
+  c.fillStyle=col;c.beginPath();
+  if(c.roundRect)c.roundRect(W/2-tw/2,690,tw,130,65);else c.rect(W/2-tw/2,690,tw,130);
+  c.fill();c.fillStyle='#ffffff';c.fillText(title,W/2,782);
+  // date, seal, signature
+  c.fillStyle=ink;c.font='400 34px "Nunito Sans", "Segoe UI", sans-serif';
+  const d=new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  c.textAlign='left';c.fillText(d,170,980);c.fillStyle='#5a5f7d';c.font='400 26px "Nunito Sans", "Segoe UI", sans-serif';c.fillText('Date',170,1016);
+  c.textAlign='right';c.fillStyle=ink;c.font='600 44px Fredoka, "Trebuchet MS", sans-serif';c.fillText('☁️ The Cloud',W-170,980);
+  c.fillStyle='#5a5f7d';c.font='400 26px "Nunito Sans", "Segoe UI", sans-serif';c.fillText('Signed (it was here all along)',W-170,1016);
+  c.textAlign='center';c.fillStyle=col;c.beginPath();
+  for(let i=0;i<24;i++){const a=i*Math.PI/12,r=i%2?66:82;c.lineTo(W/2+Math.cos(a)*r,960+Math.sin(a)*r);}
+  c.closePath();c.fill();c.font='60px sans-serif';c.fillText(watchedCount>=total?'🎓':'⭐',W/2,982);
+}
+nameBox.addEventListener('input',()=>{try{localStorage.setItem('certName',nameBox.value)}catch(e){}drawCert()});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(drawCert);
+let saver=null;
+if(window.claude&&window.claude.use)window.claude.use('downloads').then(d=>{saver=d}).catch(()=>{});
+document.getElementById('cert-save').addEventListener('click',()=>{
+  const msg=document.getElementById('cert-msg'),cv=document.getElementById('cert-canvas');
+  drawCert();
+  cv.toBlob(async blob=>{
+    if(!blob){msg.textContent='Could not make the picture. Take a screenshot of the diploma instead.';return;}
+    if(saver){
+      try{await saver.save({filename:'cloud-diploma.png',data:blob});msg.textContent='Saved. Go show it off.';}
+      catch(e){msg.textContent=(e&&e.code==='declined')?'':'Saving is not possible here. Take a screenshot of the diploma instead.';}
+      return;
+    }
+    try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cloud-diploma.png';document.body.appendChild(a);a.click();a.remove();}catch(e){}
+    msg.textContent='Saved to your downloads.';
+  },'image/png');
+});
+function refresh(){
+  const n=[...document.querySelectorAll('.card')].filter(c=>c.querySelector('.chk input:checked')).length;
+  document.getElementById('count').textContent=n+' of '+total+' watched'+(n===total?' 🎉':'');
+  document.getElementById('fill').style.width=(100*n/total)+'%';
+  let secs=0;document.querySelectorAll('.chk input:checked').forEach(i=>{secs+=LEN[i.id.slice(2)]||0});
+  watchedMin=Math.round(secs/60);
+  document.getElementById('mins').textContent=watchedMin?'⏱ '+watchedMin+' min':'';
+  watchedCount=n;drawCert();markParts();applyFilter();
+}
+document.getElementById('app').addEventListener('change',e=>{
+  if(e.target.matches('.skip input')){
+    const c=e.target.closest('.card'),k='skip-'+c.dataset.id;
+    if(e.target.checked){store[k]=1;if(!hideDone){hideDone=true;try{localStorage.setItem('hideDone','1')}catch(err){}}}else delete store[k];
+    c.classList.toggle('skipped',e.target.checked);
+    try{localStorage.setItem('watched',JSON.stringify(store))}catch(err){}
+    applyFilter();return;
+  }
+  if(!e.target.matches('.chk input'))return;
+  const card=e.target.closest('.card');
+  const vid=e.target.id.slice(2);
+  if(e.target.checked)store[vid]=1;else delete store[vid];
+  card.classList.toggle('done',!!card.querySelector('.chk input:checked'));
+  try{localStorage.setItem('watched',JSON.stringify(store))}catch(err){}
+  refresh();
+});
+// ----- easier navigation -----
+let hideDone=false;
+try{hideDone=localStorage.getItem('hideDone')==='1'}catch(e){}
+const hideBtn=document.getElementById('hide-btn'),topBtn=document.getElementById('top-btn');
+// a card with two videos where only one is ticked still has something to watch
+function markParts(){
+  document.querySelectorAll('.card').forEach(c=>{
+    const m=c.querySelector('.bd>.row .chk input'),a=c.querySelector('.alt .chk input');
+    const ms=!!(a&&m&&m.checked&&!a.checked),as=!!(a&&m&&a.checked&&!m.checked);
+    c.classList.toggle('main-seen',ms);c.classList.toggle('alt-seen',as);c.classList.toggle('part',ms||as);
+  });
+}
+function applyFilter(){
+  const all=document.querySelectorAll('.card'),left=document.querySelectorAll('.card:not(.done)');
+  const open='.card:not(.done):not(.skipped),.card.part:not(.skipped)';
+  const on=hideDone&&document.querySelectorAll(open).length>0;
+  document.body.classList.toggle('hide-done',on);
+  hideBtn.setAttribute('aria-pressed',hideDone?'true':'false');
+  hideBtn.textContent=hideDone?'👀 Show all':'🙈 Hide watched & skipped';
+  document.querySelectorAll('section[id^="ch"]').forEach(s=>{s.hidden=on&&!s.querySelector(open)});
+  document.getElementById('next-btn').textContent=all.length&&!left.length?'🎓 To my diploma':'⏭ Next unwatched';
+}
+hideBtn.addEventListener('click',()=>{hideDone=!hideDone;try{localStorage.setItem('hideDone',hideDone?'1':'0')}catch(e){}applyFilter();});
+document.getElementById('next-btn').addEventListener('click',()=>{
+  const c=document.querySelector('.card:not(.done):not(.skipped)')||document.getElementById('diploma');
+  c.scrollIntoView({behavior:'smooth',block:'start'});
+});
+topBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+window.addEventListener('scroll',()=>{topBtn.hidden=window.scrollY<700},{passive:true});
+
+// ----- in-page video player (stand-alone site only) -----
+const player=document.getElementById('player');
+let playing=null;
+function openPlayer(kind,id,title){
+  playing=id;
+  document.getElementById('ptitle').textContent=title;
+  const src=kind==='fb'
+    ?'https://www.facebook.com/plugins/video.php?href='+encodeURIComponent(FB+id+'/')+'&show_text=false&width=320'
+    :'https://www.youtube-nocookie.com/embed/'+id+'?rel=0';
+  // a fresh iframe each time, so the video adds nothing to the Back history
+  document.getElementById('pwrap').innerHTML='<iframe class="'+kind+'" src="'+src+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Video"></iframe>';
+  document.getElementById('popen').href=(kind==='fb'?FB:YT)+id;
+  document.getElementById('pdone').hidden=!document.getElementById('w-'+id);
+  player.hidden=false;
+  document.body.style.overflow='hidden';
+  history.pushState({player:1},'');
+}
+function closePlayer(){
+  if(player.hidden)return;
+  player.hidden=true;
+  document.getElementById('pwrap').innerHTML='';
+  document.body.style.overflow='';
+  playing=null;
+}
+window.addEventListener('popstate',closePlayer);
+document.getElementById('pclose').addEventListener('click',()=>history.back());
+document.getElementById('pdone').addEventListener('click',()=>{
+  const cb=document.getElementById('w-'+playing);
+  if(cb&&!cb.checked){cb.checked=true;cb.dispatchEvent(new Event('change',{bubbles:true}));}
+  history.back();
+});
+document.addEventListener('click',e=>{
+  if(!EMBED)return;
+  const a=e.target.closest&&e.target.closest('a');
+  if(!a||a.id==='popen')return;
+  const href=a.getAttribute('href')||'';
+  const kind=href.startsWith(FB)?'fb':href.startsWith(YT)?'yt':null;
+  if(!kind)return;
+  e.preventDefault();
+  const id=href.slice((kind==='fb'?FB:YT).length).replace(/\/$/,'');
+  const alt=a.closest('.alt'),card=a.closest('.card');
+  const title=a.dataset.title||(alt?alt.querySelector('p').textContent:card?card.querySelector('h3').textContent:a.textContent);
+  openPlayer(kind,id,title);
+});
+refresh();
+document.getElementById('cert-print').addEventListener('click',()=>{drawCert();window.print();});
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+let installEvent=null;
+const installBtn=document.getElementById('install');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvent=e;installBtn.hidden=false;document.getElementById('home-help').style.display='none';});
+installBtn.addEventListener('click',async()=>{if(!installEvent)return;installEvent.prompt();try{await installEvent.userChoice}catch(e){}installEvent=null;installBtn.hidden=true;});
+window.addEventListener('appinstalled',()=>{installBtn.hidden=true;});
+</script>
+</body>
+</html>
